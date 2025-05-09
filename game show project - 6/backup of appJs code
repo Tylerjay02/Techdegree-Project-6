@@ -1,0 +1,124 @@
+// Start button //
+const startContainer = document.querySelector('.start');
+const startTitle = document.querySelector('.title');
+const startButton = document.querySelector('.btn__reset');
+
+startButton.addEventListener('click', () => {
+ startContainer.style.display = 'none';
+ resetGame();
+});
+
+// Qwerty keyboard //
+
+const keyboard = document.querySelector('#qwerty');
+
+keyboard.addEventListener('click', (e) => {
+ if(e.target.tagName === "BUTTON") {
+   const key = e.target;
+   const press = key.parentNode;
+   if (key.classList.contains('chosen')) { // Filters out clicks on already clicked buttons //
+     return;
+   }
+   key.classList.add('chosen');
+   let letter = key.textContent;
+   checkLetter(letter, key);
+   checkWin();
+ }
+});
+
+// Function to get a random phrase from the array //
+
+const phrases = ["Hello", "Over there", "Welcome", "I like coding","HaHaHa","Random Phrase"];
+const addPhraseToPage = document.querySelector('#phrase ul');
+
+function getRandomPhraseAsArray(arr) {
+ const randomIndex = Math.floor(Math.random() * arr.length);
+ return arr[randomIndex];
+}
+
+// Function to add the phrase to the page //
+function addPhraseToDisplay(phrase) {
+ for (let i = 0; i < phrase.length; i++) {
+   const newLi = document.createElement('li');
+   newLi.textContent = phrase[i];
+
+   // This adds a space on the page if there is a space in the phrase //
+   if (phrase[i] === ' ') {
+     newLi.classList.add('space');
+   } else {
+     newLi.classList.add('letter');
+   }
+   addPhraseToPage.appendChild(newLi);
+ }
+}
+
+// Function that checks each letter in the phrase //
+
+const checkLis = addPhraseToPage.children;
+const lives = document.querySelectorAll('#scoreboard img');
+
+function checkLetter(letter, key) {
+ let letterFound = null;
+ for (let x=0; x < checkLis.length; x++ ) {
+   const check = checkLis[x].textContent;
+   if (check.toLowerCase() === letter.toLowerCase()) {
+
+     checkLis[x].classList.add('show');
+     console.log(letter); // This is here just to see if the code works by logging the selected letter to the console for testing purposes //
+     letterFound = checkLis[x].textContent;
+     }
+   }
+   if (!letterFound) {
+     key.classList.add('chosen_miss');
+     if (missed < lives.length) {
+       lives[lives.length - 1 - missed].src= "images/lostHeart.png";
+     }
+     missed++; // Adds to missed counter //
+     console.log("Missed guesses:", missed);
+   }
+   return letterFound;
+}
+
+// Number of lives the user has to guess //
+
+let missed = 0;
+
+function checkWin() {
+ const storeLetter = document.querySelectorAll('ul .letter');
+ const storeShow = document.querySelectorAll('ul .show');
+
+ if (storeLetter.length === storeShow.length) {
+   startContainer.classList.add('win');
+   startContainer.style.display = 'flex';
+   startTitle.textContent = 'Well Done You win!.';
+   startButton.textContent = 'Play Again';
+   console.log('Well done'); //currently here for testing purposes //
+ } else if (missed > 4) {
+   startContainer.classList.add('lose');
+   startContainer.style.display = 'flex';
+   startTitle.textContent = 'Game Over.';
+   startButton.textContent = 'Try Again';
+   console.log('Game over'); //currently here for testing purposes //
+ }
+}
+
+// Reset game function for when the user wins or loses //
+
+function resetGame() {
+ missed = 0;
+
+ addPhraseToPage.innerHTML = '';
+ const randomPhrase = getRandomPhraseAsArray(phrases);
+ addPhraseToDisplay(randomPhrase);
+
+ const keyboardKeys = document.querySelectorAll('#qwerty button');
+ keyboardKeys.forEach(key => {
+   key.classList.remove('chosen', 'chosen_miss');
+ });
+
+ lives.forEach(life => {
+   life.src= "images/liveHeart.png";
+ });
+
+ startContainer.classList.remove('lose', 'win');
+}
